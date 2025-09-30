@@ -1,5 +1,4 @@
-// Name: <<YOUR NAME HERE>>
-// Project: COMP482 Project 1
+// Name: Kris Sy COMP482 Project 1
 
 import java.io.*;
 import java.util.*;
@@ -33,7 +32,7 @@ public class Project1 {
                 for (int w = 0; w < N; w++) {
                     for (int pos = 0; pos < N; pos++) {
                         if (!sc.hasNextInt()) throw new RuntimeException("Not enough women's preferences: expected " + (N*N) + " integers");
-                        int manId = sc.nextInt(); // 1..N
+                        int manId = sc.nextInt(); 
                         if (manId < 1 || manId > N) throw new RuntimeException("Invalid man id " + manId + " on women's row " + (w+1));
                         womenRank[w][manId - 1] = pos + 1; // rank = 1..N (lower is better)
                     }
@@ -51,12 +50,11 @@ public class Project1 {
             System.out.println(stable ? "Stable" : "Unstable");
 
         } catch (Exception e) {
-            // Fail hard with a message to stderr; grading will look at stdout formatting
             System.err.println("Error: " + e.getMessage());
         }
     }
 
-    // Implements the LoweredExpectations algorithm as described
+    // LoweredExpectations algorithm
     private static int[] loweredExpectationsMatch(int N, int[][] menRank, int[][] womenRank) {
         int[] womanForMan = new int[N];
         int[] manForWoman = new int[N];
@@ -119,7 +117,7 @@ public class Project1 {
         return true;
     }
 
-    // Check standard stability: no blocking pair (m, w) who prefer each other over their current partners
+    // Check stability: no blocking pair (m, w) who prefer each other over their current partners
     private static boolean isStable(int N, int[] womanForMan, int[][] menRank, int[][] womenRank) {
         int[] manForWoman = new int[N];
         Arrays.fill(manForWoman, -1);
@@ -136,7 +134,7 @@ public class Project1 {
                 boolean mPrefersW = menRank[m][w] < menRank[m][wCurrent];
                 // Does woman w prefer m over her current partner?
                 boolean wPrefersM = womenRank[w][m] < womenRank[w][mCurrent];
-                if (mPrefersW && wPrefersM) return false; // blocking pair found
+                if (mPrefersW && wPrefersM) return false; // blocking pair
             }
         }
         return true;
