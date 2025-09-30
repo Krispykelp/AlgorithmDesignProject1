@@ -11,53 +11,45 @@ public class Project1 {
             int[][] womenRank;   // womenRank[w][m] = rank (1..N), lower is better
             int N;
 
-            // Read all integers from input.txt
-            List<Integer> ints = new ArrayList<>();
+            // --- Read input.txt as preference LISTS and convert to rank matrices ---
             try (Scanner sc = new Scanner(new File("input.txt"))) {
-                while (sc.hasNext()) {
-                    if (sc.hasNextInt()) {
-                        ints.add(sc.nextInt());
-                    } else {
-                        sc.next();
+                if (!sc.hasNextInt()) throw new RuntimeException("Missing N at top of input.txt");
+                N = sc.nextInt();
+
+                menRank = new int[N][N];
+                womenRank = new int[N][N];
+
+                // Men's preferences: N rows each with N IDs in order of preference (best to worst)
+                for (int m = 0; m < N; m++) {
+                    for (int pos = 0; pos < N; pos++) {
+                        if (!sc.hasNextInt()) throw new RuntimeException("Not enough men's preferences: expected " + (N*N) + " integers");
+                        int womanId = sc.nextInt(); // 1..N
+                        if (womanId < 1 || womanId > N) throw new RuntimeException("Invalid woman id " + womanId + " on men's row " + (m+1));
+                        menRank[m][womanId - 1] = pos + 1; // rank = 1..N (lower is better)
                     }
                 }
-            }
-            if (ints.isEmpty()) throw new RuntimeException("Empty input.txt");
 
-            int idx = 0;
-            N = ints.get(idx++);
-            int expected = 2 * N * N;
-            if (ints.size() - 1 < expected) {
-                throw new RuntimeException("Expected " + expected + " preference integers after N; found " + (ints.size()-1));
-            }
-
-            menRank = new int[N][N];
-            womenRank = new int[N][N];
-
-            // Read men's preference table (as ranks), row-major N x N
-            for (int r = 0; r < N; r++) {
-                for (int c = 0; c < N; c++) {
-                    menRank[r][c] = ints.get(idx++);
-                }
-            }
-            // Read women's preference table (as ranks), row-major N x N
-            for (int r = 0; r < N; r++) {
-                for (int c = 0; c < N; c++) {
-                    womenRank[r][c] = ints.get(idx++);
+                // Women's preferences: N rows each with N IDs in order of preference (best to worst)
+                for (int w = 0; w < N; w++) {
+                    for (int pos = 0; pos < N; pos++) {
+                        if (!sc.hasNextInt()) throw new RuntimeException("Not enough women's preferences: expected " + (N*N) + " integers");
+                        int manId = sc.nextInt(); // 1..N
+                        if (manId < 1 || manId > N) throw new RuntimeException("Invalid man id " + manId + " on women's row " + (w+1));
+                        womenRank[w][manId - 1] = pos + 1; // rank = 1..N (lower is better)
+                    }
                 }
             }
 
             int[] womanForMan = loweredExpectationsMatch(N, menRank, womenRank);
             boolean stable = isStable(N, womanForMan, menRank, womenRank);
 
-            // Output per spec
-            StringBuilder out = new StringBuilder();
+            // --- Output per spec ---
             for (int m = 0; m < N; m++) {
                 int w = womanForMan[m];
-                out.append("M").append(m + 1).append("-W").append(w + 1).append('\n');
+                System.out.println("M" + (m + 1) + "-W" + (w + 1));
             }
-            out.append(stable ? "Stable" : "Unstable");
-            System.out.print(out.toString());
+            System.out.println(stable ? "Stable" : "Unstable");
+
         } catch (Exception e) {
             // Fail hard with a message to stderr; grading will look at stdout formatting
             System.err.println("Error: " + e.getMessage());
@@ -107,7 +99,7 @@ public class Project1 {
             if (allAssigned(manAssigned) && allAssigned(womanAssigned)) break;
         }
 
-        // By round N, everyone should be matched; but in case any remain (due to malformed input), pair greedily by index
+        // By round N, everyone should be matched; but in case any remain (shouldn't for valid inputs), pair greedily by index
         for (int m = 0; m < N; m++) {
             if (womanForMan[m] == -1) {
                 for (int w = 0; w < N; w++) {
